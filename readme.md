@@ -116,14 +116,14 @@ nix-shell -p python3 --run "python3 -m http.server 8080"
 - **Telegram**: [@aidzyki](https://t.me/aidzyki) — прямая связь, новости, игровые конфиги и обсуждения.
 - **GitHub**: [aidzyki](https://github.com/aidzyki) — репозитории, dotfiles, Nix-флейки.
 - **Steam**: `Aidzyki` — матчи и тестирование Proton GE.
-- **VimeWorld**: `Aidzyki` — PvP-сессии на оптимизированном Linux JVM.
+- 
 
 ```
 Rig Hardware & OS Specs:
-├── OS          : NixOS Unstable (Flakes)
+├── OS          : Arch linux
 ├── Window Mgr  : Hyprland (Wayland Tearing Protocol)
-├── Kernel      : Linux-CachyOS (BORE Scheduler)
-├── GPU Driver  : Mesa RADV ACO (Vulkan 1.3)
+├── Kernel      : Linux
+├── GPU Driver  : nvidia-driver-550
 └── Audio       : PipeWire Low-Latency (64 samples buffer)
 ```
 
