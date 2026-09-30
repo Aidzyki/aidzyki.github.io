@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TUX // RIG — Linux Gaming Portal (aidzyki edition)</title>
+    <!-- Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        mono: {
+                            base: '#070707',
+                            surface: '#0f0f0f',
+                            panel: '#141414',
+                            elevated: '#1a1a1a',
+                            border: '#262626',
+                            borderLight: '#3d3d3d',
+                            muted: '#71717a',
+                            text: '#d4d4d8',
+                            high: '#ffffff'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Strict Monochrome Theme Adjustments */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #070707;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #262626;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #52525b;
+        }
+        .mono-card {
+            background-color: #0f0f0f;
+            border: 1px solid #262626;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .mono-card:hover {
+            border-color: #52525b;
+        }
+        .mono-border {
+            border: 1px solid #262626;
+        }
+        .mono-btn-primary {
+            background-color: #ffffff;
+            color: #000000;
+            transition: all 0.15s ease;
+        }
+        .mono-btn-primary:hover {
+            background-color: #d4d4d8;
+        }
+        .mono-btn-secondary {
+            background-color: #141414;
+            border: 1px solid #262626;
+            color: #ffffff;
+            transition: all 0.15s ease;
+        }
+        .mono-btn-secondary:hover {
+            border-color: #ffffff;
+            background-color: #1f1f1f;
+        }
+        /* Subtle scanlines for HUD monitor simulator */
+        .hud-scanline {
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.4) 50%);
+            background-size: 100% 4px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-mono-base text-mono-text font-sans selection:bg-white selection:text-black antialiased overflow-x-hidden min-h-screen">
+
+    <!-- FLOATING WATERMARK (AIDZYKI ARCHIVE) -->
+    <aside class="fixed bottom-4 right-4 z-50 pointer-events-auto">
+        <a href="#aidzyki-profile" class="group flex items-center space-x-2.5 px-3 py-1.5 rounded-lg border border-mono-border bg-mono-surface/90 backdrop-blur-md shadow-2xl hover:border-white transition-all duration-200">
+            <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+            </span>
+            <span class="font-mono text-[10px] tracking-wider text-neutral-400 group-hover:text-white uppercase transition">
+                <strong class="text-white font-semibold">AIDZYKI</strong> // SYSTEM ARCHIVE
+            </span>
+            <span class="text-[9px] font-mono px-1 rounded bg-neutral-800 text-neutral-300">v2.6</span>
+        </a>
+    </aside>
+
+    <!-- Global Toast Container -->
+    <div id="toastContainer" class="fixed top-20 right-4 z-50 flex flex-col space-y-2 pointer-events-none max-w-sm w-full"></div>
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-40 border-b border-mono-border bg-mono-base/90 backdrop-blur-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            
+            <!-- Branding / Logo -->
+            <div class="flex items-center space-x-3">
+                <a href="#" class="flex items-center space-x-2.5 group">
+                    <div class="w-8 h-8 rounded border border-mono-border bg-mono-panel flex items-center justify-center text-white group-hover:border-white transition">
+                        <i data-lucide="terminal" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="font-mono font-bold tracking-tight text-white text-base">TUX<span class="text-neutral-500">//</span>RIG</span>
+                            <span class="hidden sm:inline-block text-[10px] font-mono uppercase px-1.5 py-0.5 rounded border border-mono-border text-neutral-400">MONOCHROME</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Desktop Nav Links -->
+            <nav class="hidden md:flex items-center space-x-1 font-mono text-xs text-neutral-400">
+                <a href="#launch-generator" class="px-3 py-1.5 rounded hover:text-white hover:bg-mono-panel transition">параметры-запуска</a>
+                <a href="#proton-radar" class="px-3 py-1.5 rounded hover:text-white hover:bg-mono-panel transition">радар-игр</a>
+                <a href="#mangohud-sim" class="px-3 py-1.5 rounded hover:text-white hover:bg-mono-panel transition">mangohud</a>
+                <a href="#distro-station" class="px-3 py-1.5 rounded hover:text-white hover:bg-mono-panel transition">сетап-дистро</a>
+                <a href="#anticheat-radar" class="px-3 py-1.5 rounded hover:text-white hover:bg-mono-panel transition">античит</a>
+                <a href="#aidzyki-profile" class="px-3 py-1.5 rounded text-white border border-mono-border hover:border-white transition">@aidzyki</a>
+            </nav>
+
+            <!-- Actions: SFX Toggle & Mobile Menu Trigger -->
+            <div class="flex items-center space-x-2">
+                <button id="soundToggleBtn" onclick="toggleAudio()" class="px-2.5 py-1.5 rounded border border-mono-border bg-mono-panel hover:border-neutral-400 text-neutral-300 text-xs font-mono flex items-center space-x-1.5 transition" title="Звук интерфейса">
+                    <i id="soundIcon" data-lucide="volume-2" class="w-3.5 h-3.5 text-white"></i>
+                    <span id="soundLabel" class="hidden sm:inline text-[11px]">SFX: ON</span>
+                </button>
+
+                <!-- Mobile Hamburger Button -->
+                <button id="mobileMenuBtn" onclick="toggleMobileMenu()" class="md:hidden p-2 rounded border border-mono-border bg-mono-panel text-white hover:border-white transition" aria-label="Открыть меню">
+                    <i id="menuIcon" data-lucide="menu" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Drawer -->
+        <div id="mobileDrawer" class="hidden md:hidden border-b border-mono-border bg-mono-surface px-4 py-4 space-y-3 font-mono text-xs">
+            <a href="#launch-generator" onclick="closeMobileMenu()" class="block py-2 text-neutral-300 hover:text-white border-b border-mono-border/50">_01. параметры запуска Steam</a>
+            <a href="#proton-radar" onclick="closeMobileMenu()" class="block py-2 text-neutral-300 hover:text-white border-b border-mono-border/50">_02. база совместимости игр</a>
+            <a href="#mangohud-sim" onclick="closeMobileMenu()" class="block py-2 text-neutral-300 hover:text-white border-b border-mono-border/50">_03. mangohud симулятор</a>
+            <a href="#distro-station" onclick="closeMobileMenu()" class="block py-2 text-neutral-300 hover:text-white border-b border-mono-border/50">_04. тюнинг NixOS / Arch</a>
+            <a href="#anticheat-radar" onclick="closeMobileMenu()" class="block py-2 text-neutral-300 hover:text-white border-b border-mono-border/50">_05. радар античитов EAC/BE</a>
+            <a href="#aidzyki-profile" onclick="closeMobileMenu()" class="block py-2 text-white font-semibold">_06. профиль & контакты aidzyki</a>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-16 sm:space-y-24">
+
+        <!-- Hero Section -->
+        <section class="border-b border-mono-border pb-12 sm:pb-16 pt-4">
+            <div class="max-w-4xl space-y-6">
+                <div class="inline-flex items-center space-x-2 px-2.5 py-1 rounded border border-mono-border bg-mono-panel text-neutral-300 font-mono text-xs">
+                    <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                    <span>PROTON 9.0 // WAYLAND TEARING PROTOCOL // MESA ACO // KERNEL 6.12+</span>
+                </div>
+
+                <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white uppercase leading-none font-mono">
+                    Linux Gaming.<br>
+                    <span class="text-neutral-500">Pure Performance.</span>
+                </h1>
+
+                <p class="text-neutral-400 text-sm sm:text-base leading-relaxed max-w-2xl font-sans">
+                    Бескомпромиссная боевая станция на свободном ядре. Отсутствие мусорной телеметрии, прямой вывод через Vulkan VKD3D, микрокомпозитор Gamescope и нулевой инпут-лаг для соревновательных шутеров и AAA-тайтлов.
+                </p>
+
+                <div class="flex flex-wrap gap-3 pt-2">
+                    <a href="#launch-generator" onclick="playClick()" class="mono-btn-primary px-5 py-2.5 rounded font-mono text-xs font-bold uppercase tracking-wider flex items-center space-x-2">
+                        <i data-lucide="terminal" class="w-4 h-4"></i>
+                        <span>Генератор Steam флагов</span>
+                    </a>
+                    <a href="#aidzyki-profile" onclick="playClick()" class="mono-btn-secondary px-5 py-2.5 rounded font-mono text-xs uppercase tracking-wider flex items-center space-x-2">
+                        <i data-lucide="user" class="w-4 h-4"></i>
+                        <span>Куратор: aidzyki</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Telemetry Specs -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mt-12 font-mono text-xs">
+                <div class="p-4 rounded border border-mono-border bg-mono-surface">
+                    <div class="text-neutral-500 uppercase text-[10px]">Steam Top 100</div>
+                    <div class="text-2xl font-bold text-white mt-1">94%</div>
+                    <div class="text-neutral-400 text-[11px] mt-0.5">Совместимо через Proton</div>
+                </div>
+                <div class="p-4 rounded border border-mono-border bg-mono-surface">
+                    <div class="text-neutral-500 uppercase text-[10px]">Vulkan Backend</div>
+                    <div class="text-2xl font-bold text-white mt-1">1.3+</div>
+                    <div class="text-neutral-400 text-[11px] mt-0.5">VKD3D-Proton / DXVK</div>
+                </div>
+                <div class="p-4 rounded border border-mono-border bg-mono-surface">
+                    <div class="text-neutral-500 uppercase text-[10px]">Input Delay</div>
+                    <div class="text-2xl font-bold text-white mt-1">~1.2 ms</div>
+                    <div class="text-neutral-400 text-[11px] mt-0.5">Wayland Tearing On</div>
+                </div>
+                <div class="p-4 rounded border border-mono-border bg-mono-surface">
+                    <div class="text-neutral-500 uppercase text-[10px]">Audio Latency</div>
+                    <div class="text-2xl font-bold text-white mt-1">64 spl</div>
+                    <div class="text-neutral-400 text-[11px] mt-0.5">PipeWire Pro-Audio</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AIDZYKI PROFILE & SOCIALS SECTION -->
+        <section id="aidzyki-profile" class="scroll-mt-20">
+            <div class="flex items-center justify-between border-b border-mono-border pb-3 mb-6">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="shield" class="w-4 h-4 text-white"></i>
+                    <h2 class="font-mono text-sm font-bold uppercase tracking-wider text-white">Curator & Rig Master // aidzyki</h2>
+                </div>
+                <span class="text-neutral-500 text-xs font-mono">ID: aidzyki // verified</span>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                <!-- Profile Identity Card -->
+                <div class="lg:col-span-4 mono-card rounded-lg p-6 flex flex-col justify-between space-y-6">
+                    <div>
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="w-14 h-14 rounded border border-mono-borderLight bg-mono-panel flex items-center justify-center text-white font-mono text-xl font-bold">
+                                AZ
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-mono font-bold text-white tracking-wide">aidzyki</h3>
+                                <p class="text-xs text-neutral-400 font-mono">Linux Gamer & NixOS Enthusiast</p>
+                                <div class="mt-1 inline-flex items-center space-x-1.5 text-[10px] font-mono text-white bg-mono-elevated px-2 py-0.5 rounded border border-mono-border">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                                    <span>STATUS: ONLINE // GAMING</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-xs text-neutral-300 font-sans leading-relaxed">
+                            Сборка, поддержка и оптимизация Linux-окружения для киберспорта и AAA-гейминга. Кастомные конфиги NixOS, Hyprland без задержек и тонкая настройка Proton под Steam.
+                        </p>
+                    </div>
+
+                    <!-- System Rig Specs Quickview -->
+                    <div class="p-3 rounded bg-mono-panel border border-mono-border font-mono text-[11px] space-y-1">
+                        <div class="text-neutral-500 text-[10px] uppercase font-bold tracking-wider">Battle Station Specs:</div>
+                        <div class="flex justify-between text-neutral-300">
+                            <span>OS:</span>
+                            <span class="text-white">NixOS Unstable / Hyprland</span>
+                        </div>
+                        <div class="flex justify-between text-neutral-300">
+                            <span>Kernel:</span>
+                            <span class="text-white">Linux-CachyOS (BORE)</span>
+                        </div>
+                        <div class="flex justify-between text-neutral-300">
+                            <span>GPU / Driver:</span>
+                            <span class="text-white">Radeon RX / Mesa ACO</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Socials & Platforms Grid -->
+                <div class="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Telegram -->
+                    <a href="https://t.me/aidzyki" target="_blank" rel="noopener noreferrer" onclick="playClick()" class="mono-card rounded-lg p-5 flex flex-col justify-between hover:border-white group transition">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-mono text-xs text-neutral-400 uppercase tracking-wider">Telegram Channel & PM</span>
+                                <i data-lucide="send" class="w-4 h-4 text-white group-hover:translate-x-0.5 transition"></i>
+                            </div>
+                            <div class="text-base font-mono font-bold text-white group-hover:underline">@aidzyki</div>
+                            <p class="text-xs text-neutral-400 mt-2 font-sans">
+                                Прямая связь, обсуждение игровых сборок, конфигов ядра и решение траблов с Proton.
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-mono-border flex items-center justify-between text-[11px] font-mono text-neutral-400">
+                            <span>Сообщество & Чат</span>
+                            <span class="text-white font-semibold">t.me/aidzyki &rarr;</span>
+                        </div>
+                    </a>
+
+                    <!-- Roblox -->
+                    <div class="mono-card rounded-lg p-5 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-mono text-xs text-neutral-400 uppercase tracking-wider">Roblox Identity</span>
+                                <i data-lucide="gamepad-2" class="w-4 h-4 text-white"></i>
+                            </div>
+                            <div class="text-base font-mono font-bold text-white">@zov_aidzyki</div>
+                            <p class="text-xs text-neutral-400 mt-2 font-sans">
+                                Игровой никнейм в Roblox. Запуск через нативный Linux-клиент Vinegar / Sober с Vulkan API.
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-mono-border flex items-center justify-between text-[11px] font-mono text-neutral-400">
+                            <span>Платформа: Sober/Soba</span>
+                            <button onclick="copySnippet('zov_aidzyki')" class="hover:text-white underline">Скопировать ник</button>
+                        </div>
+                    </div>
+
+                    <!-- Steam & VimeWorld -->
+                    <div class="mono-card rounded-lg p-5 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-mono text-xs text-neutral-400 uppercase tracking-wider">Steam & VimeWorld</span>
+                                <i data-lucide="crosshair" class="w-4 h-4 text-white"></i>
+                            </div>
+                            <div class="text-base font-mono font-bold text-white">Aidzyki</div>
+                            <p class="text-xs text-neutral-400 mt-2 font-sans">
+                                Steam профиль и VimeWorld аккаунт. Совместные катки в CS2, TF2, Dota 2 и соревновательные PvP-сервера.
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-mono-border flex items-center justify-between text-[11px] font-mono text-neutral-400">
+                            <span>Handle: Aidzyki</span>
+                            <button onclick="copySnippet('Aidzyki')" class="hover:text-white underline">Скопировать ник</button>
+                        </div>
+                    </div>
+
+                    <!-- GitHub & Dotfiles -->
+                    <a href="https://github.com/aidzyki" target="_blank" rel="noopener noreferrer" onclick="playClick()" class="mono-card rounded-lg p-5 flex flex-col justify-between hover:border-white group transition">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-mono text-xs text-neutral-400 uppercase tracking-wider">GitHub / Dotfiles</span>
+                                <i data-lucide="github" class="w-4 h-4 text-white group-hover:translate-x-0.5 transition"></i>
+                            </div>
+                            <div class="text-base font-mono font-bold text-white group-hover:underline">aidzyki / dotfiles</div>
+                            <p class="text-xs text-neutral-400 mt-2 font-sans">
+                                Репозитории конфигураций: декларативные Nix-флейки, Hyprland правила без задержек и MangoHud пресеты.
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-mono-border flex items-center justify-between text-[11px] font-mono text-neutral-400">
+                            <span>Open Source</span>
+                            <span class="text-white font-semibold">github.com/aidzyki &rarr;</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEAM LAUNCH OPTIONS BUILDER -->
+        <section id="launch-generator" class="scroll-mt-20">
+            <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-mono-border pb-3 mb-6 gap-3">
+                <div>
+                    <h2 class="font-mono text-sm font-bold uppercase tracking-wider text-white">
+                        _01. Steam Launch Options Generator
+                    </h2>
+                    <p class="text-xs text-neutral-400 mt-0.5">Соберите чистую командную строку флагов для параметров запуска в Steam</p>
+                </div>
+                <div class="flex flex-wrap gap-2 text-xs font-mono">
+                    <button onclick="applyPreset('competitive')" class="px-2.5 py-1 rounded border border-mono-border bg-mono-panel hover:border-white text-white transition">Пресет: CS2 / Киберспорт</button>
+                    <button onclick="applyPreset('quality_rt')" class="px-2.5 py-1 rounded border border-mono-border bg-mono-panel hover:border-white text-white transition">Пресет: Cyberpunk / AAA</button>
+                    <button onclick="resetLaunchOptions()" class="px-2.5 py-1 rounded border border-mono-border bg-mono-panel hover:border-neutral-500 text-neutral-400 transition">Сбросить</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- Controls Column -->
+                <div class="lg:col-span-7 space-y-4">
+                    
+                    <!-- Core Tools -->
+                    <div class="mono-card rounded-lg p-5 space-y-4">
+                        <div class="text-xs font-mono font-bold text-white uppercase tracking-wider">
+                            Системные оверлеи и оптимизаторы
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono text-xs">
+                            <label class="flex items-start space-x-3 p-3 rounded border border-mono-border bg-mono-panel cursor-pointer hover:border-mono-borderLight">
+                                <input type="checkbox" id="opt_gamemode" checked onchange="updateLaunchCommand()" class="mt-0.5 accent-white">
+                                <div>
+                                    <div class="font-bold text-white">Feral GameMode</div>
+                                    <div class="text-[11px] text-neutral-400">`gamemoderun` — перевод CPU в high performance</div>
+                                </div>
+                            </label>
+
+                            <label class="flex items-start space-x-3 p-3 rounded border border-mono-border bg-mono-panel cursor-pointer hover:border-mono-borderLight">
+                                <input type="checkbox" id="opt_mangohud" checked onchange="updateLaunchCommand()" class="mt-0.5 accent-white">
+                                <div>
+                                    <div class="font-bold text-white">MangoHud</div>
+                                    <div class="text-[11px] text-neutral-400">`mangohud` — оверлей FPS, температур и задержек</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Valve Gamescope Micro-compositor -->
+                    <div class="mono-card rounded-lg p-5 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="text-xs font-mono font-bold text-white uppercase tracking-wider">
+                                Gamescope (Микрокомпозитор Valve)
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="opt_gamescope" onchange="toggleGamescope(); updateLaunchCommand();" class="sr-only peer">
+                                <div class="w-9 h-5 bg-neutral-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-white"></div>
+                            </label>
+                        </div>
+
+                        <div id="gamescopeFields" class="space-y-3 opacity-40 pointer-events-none transition-opacity duration-200">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-xs">
+                                <div>
+                                    <label class="block text-[11px] text-neutral-400 mb-1">Разрешение вывода</label>
+                                    <select id="opt_gs_res" onchange="updateLaunchCommand()" class="w-full bg-mono-panel border border-mono-border rounded p-2 text-white outline-none focus:border-white">
+                                        <option value="1920x1080">1080p (1920x1080)</option>
+                                        <option value="2560x1440" selected>1440p (2560x1440)</option>
+                                        <option value="3840x2160">4K (3840x2160)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] text-neutral-400 mb-1">FPS Лимит кадра</label>
+                                    <select id="opt_gs_fps" onchange="updateLaunchCommand()" class="w-full bg-mono-panel border border-mono-border rounded p-2 text-white outline-none focus:border-white">
+                                        <option value="0">Без лимита</option>
+                                        <option value="144" selected>144 FPS</option>
+                                        <option value="165">165 FPS</option>
+                                        <option value="240">240 FPS</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] text-neutral-400 mb-1">Режим экрана</label>
+                                    <select id="opt_gs_mode" onchange="updateLaunchCommand()" class="w-full bg-mono-panel border border-mono-border rounded p-2 text-white outline-none focus:border-white">
+                                        <option value="-f" selected>Fullscreen (-f)</option>
+                                        <option value="-b">Borderless (-b)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 font-mono text-xs">
+                                <label class="flex items-center space-x-2 text-neutral-300 cursor-pointer">
+                                    <input type="checkbox" id="opt_gs_fsr" onchange="updateLaunchCommand()" class="accent-white">
+                                    <span>FSR апскейл (-U --fsr-sharpness 2)</span>
+                                </label>
+                                <label class="flex items-center space-x-2 text-neutral-300 cursor-pointer">
+                                    <input type="checkbox" id="opt_gs_hdr" onchange="updateLaunchCommand()" class="accent-white">
+                                    <span>HDR вывод (--hdr-enabled)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vulkan & DXVK Flags -->
+                    <div class="mono-card rounded-lg p-5 space-y-3">
+                        <div class="text-xs font-mono font-bold text-white uppercase tracking-wider">
+                            Драйверные оптимизации & Пайплайн
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono text-xs">
+                            <label class="flex items-center space-x-2 p-2 rounded border border-mono-border bg-mono-panel cursor-pointer hover:border-mono-borderLight">
+                                <input type="checkbox" id="opt_aco" onchange="updateLaunchCommand()" class="accent-white">
+                                <div class="text-neutral-300">
+                                    <div class="font-bold text-white">RADV_PERFTEST=aco</div>
+                                    <div class="text-[10px] text-neutral-500">Быстрая компиляция шейдеров AMD</div>
+                                </div>
+                            </label>
+                            <label class="flex items-center space-x-2 p-2 rounded border border-mono-border bg-mono-panel cursor-pointer hover:border-mono-borderLight">
+                                <input type="checkbox" id="opt_nvapi" onchange="updateLaunchCommand()" class="accent-white">
+                                <div class="text-neutral-300">
+                                    <div class="font-bold text-white">PROTON_ENABLE_NVAPI=1</div>
+                                    <div class="text-[10px] text-neutral-500">DLSS & Reflex для NVIDIA</div>
+                                </div>
+                            </label>
+                            <label class="flex items-center space-x-2 p-2 rounded border border-mono-border bg-mono-panel cursor-pointer hover:border-mono-borderLight">
+                                <input type="checkbox" id="opt_dxr" onchange="updateLaunchCommand()" class="accent-white">
+                                <div class="text-neutral-300">
+                                    <div class="font-bold text-white">VKD3D_CONFIG=dxr11,dxr</div>
+                                    <div class="text-[10px] text-neutral-500">Аппаратный Ray Tracing в DX12</div>
+                                </div>
+                            </label>
+                            <label class="flex items-center space-x-2 p-2 rounded border border-mono-border bg-mono-panel cursor-pointer hover:border-mono-borderLight">
+                                <input type="checkbox" id="opt_mailbox" onchange="updateLaunchCommand()" class="accent-white">
+                                <div class="text-neutral-300">
+                                    <div class="font-bold text-white">PRESENT_MODE=mailbox</div>
+                                    <div class="text-[10px] text-neutral-500">Мгновенный Fast Sync вывод</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terminal Output Column -->
+                <div class="lg:col-span-5 sticky top-24">
+                    <div class="mono-card rounded-lg overflow-hidden shadow-2xl">
+                        <div class="px-4 py-2.5 border-b border-mono-border bg-mono-panel flex items-center justify-between font-mono text-xs">
+                            <span class="text-neutral-400">steam_launch_command.sh</span>
+                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-mono-elevated text-white border border-mono-border font-bold">READY</span>
+                        </div>
+
+                        <div class="p-4 bg-black font-mono text-xs min-h-[140px] flex items-center select-all break-words leading-relaxed text-neutral-200">
+                            <code id="terminalOutput" class="w-full">
+                                <!-- Populated dynamically -->
+                            </code>
+                        </div>
+
+                        <div class="p-4 bg-mono-panel border-t border-mono-border space-y-3">
+                            <button id="copyLaunchBtn" onclick="copyLaunchCommand()" class="w-full mono-btn-primary py-2.5 rounded font-mono text-xs font-bold uppercase tracking-wider flex items-center justify-center space-x-2">
+                                <i data-lucide="copy" class="w-4 h-4"></i>
+                                <span id="copyLaunchText">Скопировать строку для Steam</span>
+                            </button>
+                            <p class="text-[11px] text-neutral-400 font-sans leading-tight">
+                                Вставьте команду в Steam: <em>Свойства игры &rarr; Общие &rarr; Параметры запуска</em>. Токен <code>%command%</code> запустит бинарник игры со всеми флагами.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- GAME COMPATIBILITY RADAR -->
+        <section id="proton-radar" class="scroll-mt-20">
+            <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-mono-border pb-3 mb-6 gap-3">
+                <div>
+                    <h2 class="font-mono text-sm font-bold uppercase tracking-wider text-white">
+                        _02. Proton & Native Compatibility Radar
+                    </h2>
+                    <p class="text-xs text-neutral-400 mt-0.5">Проверенные пресеты запуска и статус совместимости популярных тайтлов</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <input type="text" id="gameSearch" oninput="filterGames()" placeholder="Поиск игры..." class="px-3 py-1.5 bg-mono-panel border border-mono-border rounded text-xs font-mono text-white outline-none focus:border-white w-44 sm:w-56">
+                    <div class="flex rounded border border-mono-border bg-mono-panel p-0.5 text-xs font-mono">
+                        <button onclick="setTierFilter('all')" class="tier-btn px-2 py-1 rounded text-white bg-mono-elevated font-bold" data-tier="all">Все</button>
+                        <button onclick="setTierFilter('Native')" class="tier-btn px-2 py-1 rounded text-neutral-400 hover:text-white" data-tier="Native">Native</button>
+                        <button onclick="setTierFilter('Platinum')" class="tier-btn px-2 py-1 rounded text-neutral-400 hover:text-white" data-tier="Platinum">Platinum</button>
+                        <button onclick="setTierFilter('Gold')" class="tier-btn px-2 py-1 rounded text-neutral-400 hover:text-white" data-tier="Gold">Gold</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Games Grid -->
+            <div id="gamesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Injected via JavaScript -->
+            </div>
+        </section>
+
+        <!-- MANGOHUD LIVE SIMULATOR -->
+        <section id="mangohud-sim" class="scroll-mt-20">
+            <div class="border-b border-mono-border pb-3 mb-6">
+                <h2 class="font-mono text-sm font-bold uppercase tracking-wider text-white">
+                    _03. MangoHud Overlay Real-time Studio
+                </h2>
+                <p class="text-xs text-neutral-400 mt-0.5">
+                    Живой рендеринг игрового оверлея на 3D-сцене с генерацией конфигурационного файла `MangoHud.conf`
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- Simulator Config Panel -->
+                <div class="lg:col-span-5 mono-card rounded-lg p-5 space-y-4">
+                    <div class="text-xs font-mono font-bold text-white uppercase tracking-wider border-b border-mono-border pb-2 flex justify-between items-center">
+                        <span>Метрики оверлея</span>
+                        <span class="text-neutral-500 font-normal">Vulkan / OpenGL</span>
+                    </div>
+
+                    <div class="space-y-2.5 font-mono text-xs">
+                        <label class="flex items-center justify-between p-2 rounded border border-mono-border bg-mono-panel cursor-pointer hover:border-mono-borderLight">
+                            <span class="text-neutral-200">FPS и счетчик частоты</span>
+                            <input type="checkbox" id="hud_fps" checked onchange="renderHud()" class="accent-white">
+                        </label>
+                        <label class="flex items-center justify-between p-2 rounded border border-mono-border bg-mono-panel cursor-pointer hover:border-mono-borderLight">
+                            <span class="text-neutral-200">График фреймтайма (мс)</span>
+                            <input type="checkbox" id="hud_frametime" checked onchange="renderHud()" class="accent-white">
+                        </label>
+                        <label class="flex items-center justify-between p-2 rounded border border-mono-border bg-mono-panel cursor-pointer hover:border-mono-borderLight">
+                            <span class="text-neutral-200">GPU (Нагрузка, Температура, VRAM)</span>
+                            <input type="checkbox" id="hud_gpu" checked onchange="renderHud()" class="accent-white">
+                        </label>
+                        <label class="flex items-center justify-between p-2 rounded border border-mono-border bg-mono-panel cursor-pointer hover:border-mono-borderLight">
+                            <span class="text-neutral-200">CPU (Загрузка, Частота, RAM)</span>
+                            <input type="checkbox" id="hud_cpu" checked onchange="renderHud()" class="accent-white">
+                        </label>
+                        <label class="flex items-center justify-between p-2 rounded border border-mono-border bg-mono-panel cursor-pointer hover:border-mono-borderLight">
+                            <span class="text-neutral-200">Версия драйвера и ядра</span>
+                            <input type="checkbox" id="hud_driver" checked onchange="renderHud()" class="accent-white">
+                        </label>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 pt-2 font-mono text-xs">
+                        <div>
+                            <label class="block text-neutral-400 mb-1 text-[11px]">Положение</label>
+                            <select id="hud_position" onchange="renderHud()" class="w-full bg-mono-panel border border-mono-border rounded p-2 text-white outline-none focus:border-white">
+                                <option value="top-left" selected>Top-Left</option>
+                                <option value="top-right">Top-Right</option>
+                                <option value="bottom-left">Bottom-Left</option>
+                                <option value="bottom-right">Bottom-Right</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-neutral-400 mb-1 text-[11px]">Формат</label>
+                            <select id="hud_preset" onchange="renderHud()" class="w-full bg-mono-panel border border-mono-border rounded p-2 text-white outline-none focus:border-white">
+                                <option value="full" selected>Полный детальный</option>
+                                <option value="compact">Компактный</option>
+                                <option value="minimal">Минимал (только FPS)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button onclick="copyMangoConf()" class="w-full mono-btn-secondary py-2 rounded font-mono text-xs uppercase tracking-wider flex items-center justify-center space-x-2">
+                        <i data-lucide="file-code" class="w-4 h-4"></i>
+                        <span>Скопировать ~/.config/MangoHud/MangoHud.conf</span>
+                    </button>
+                </div>
+
+                <!-- Live Render Display Area -->
+                <div class="lg:col-span-7">
+                    <div class="relative rounded-lg overflow-hidden border border-mono-border bg-black aspect-video flex items-center justify-center">
+                        <!-- Canvas 3D Wireframe Scene -->
+                        <canvas id="hudCanvas" class="w-full h-full block"></canvas>
+                        <div class="absolute inset-0 hud-scanline"></div>
+
+                        <!-- Simulated HTML MangoHud Overlay -->
+                        <div id="mangoHudDisplay" class="absolute font-mono text-xs pointer-events-none select-none" style="top: 14px; left: 14px;">
+                            <!-- Populated in JS -->
+                        </div>
+
+                        <div class="absolute bottom-2 right-3 font-mono text-[10px] text-neutral-500 uppercase tracking-widest">
+                            SIM: VULKAN 1.3 // VKD3D-PROTON
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- DISTRO BATTLE STATION (FOCUS ON NIXOS & ARCH) -->
+        <section id="distro-station" class="scroll-mt-20">
+            <div class="border-b border-mono-border pb-3 mb-6">
+                <h2 class="font-mono text-sm font-bold uppercase tracking-wider text-white">
+                    _04. Distro Tuning Station
+                </h2>
+                <p class="text-xs text-neutral-400 mt-0.5">
+                    Декларативные конфиги и пакетные менеджеры для игровых систем
+                </p>
+            </div>
+
+            <!-- Distro Tabs (Horizontally scrollable for mobile) -->
+            <div class="flex overflow-x-auto space-x-2 pb-2 mb-4 scrollbar-none">
+                <button onclick="switchDistro('nixos')" id="dtab_nixos" class="distro-tab whitespace-nowrap px-4 py-2 rounded font-mono text-xs border border-white bg-mono-elevated text-white font-bold transition">
+                    NixOS (aidzyki Flake)
+                </button>
+                <button onclick="switchDistro('arch')" id="dtab_arch" class="distro-tab whitespace-nowrap px-4 py-2 rounded font-mono text-xs border border-mono-border bg-mono-panel text-neutral-400 hover:text-white transition">
+                    Arch Linux / CachyOS
+                </button>
+                <button onclick="switchDistro('fedora')" id="dtab_fedora" class="distro-tab whitespace-nowrap px-4 py-2 rounded font-mono text-xs border border-mono-border bg-mono-panel text-neutral-400 hover:text-white transition">
+                    Fedora / Nobara
+                </button>
+                <button onclick="switchDistro('bazzite')" id="dtab_bazzite" class="distro-tab whitespace-nowrap px-4 py-2 rounded font-mono text-xs border border-mono-border bg-mono-panel text-neutral-400 hover:text-white transition">
+                    Bazzite (SteamOS Clone)
+                </button>
+            </div>
+
+            <div id="distroContainer" class="mono-card rounded-lg p-5">
+                <!-- Distro content populated via JS -->
+            </div>
+
+            <!-- Wayland & PipeWire Audio Tweaks -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 font-mono text-xs">
+                <div class="mono-card rounded-lg p-4 space-y-2">
+                    <div class="flex items-center space-x-2 text-white font-bold">
+                        <i data-lucide="layers" class="w-4 h-4"></i>
+                        <span>Wayland Tearing (Zero-Lag)</span>
+                    </div>
+                    <p class="text-[11px] text-neutral-400 font-sans">
+                        Включение нативного протокола tearing для мгновенного отклика курсора в шутерах (Hyprland / KDE 6):
+                    </p>
+                    <div class="p-2.5 rounded bg-black border border-mono-border flex items-center justify-between text-neutral-200">
+                        <code class="text-[10px] break-all">windowrulev2 = immediate, class:^(cs2|steam_app_.*)$</code>
+                        <button onclick="copySnippet('windowrulev2 = immediate, class:^(cs2|steam_app_.*)$')" class="text-neutral-400 hover:text-white ml-2">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mono-card rounded-lg p-4 space-y-2">
+                    <div class="flex items-center space-x-2 text-white font-bold">
+                        <i data-lucide="headphones" class="w-4 h-4"></i>
+                        <span>PipeWire Low-Latency Audio</span>
+                    </div>
+                    <p class="text-[11px] text-neutral-400 font-sans">
+                        Установка кванта 64 сэмпла для снижения задержки позиционирования шагов до 1.3 миллисекунды:
+                    </p>
+                    <div class="p-2.5 rounded bg-black border border-mono-border flex items-center justify-between text-neutral-200">
+                        <code class="text-[10px] break-all">pw-metadata -n settings 0 clock.quantum 64/48000</code>
+                        <button onclick="copySnippet('pw-metadata -n settings 0 clock.quantum 64/48000')" class="text-neutral-400 hover:text-white ml-2">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ANTI-CHEAT COMPATIBILITY RADAR -->
+        <section id="anticheat-radar" class="scroll-mt-20">
+            <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-mono-border pb-3 mb-6 gap-3">
+                <div>
+                    <h2 class="font-mono text-sm font-bold uppercase tracking-wider text-white">
+                        _05. Anti-Cheat Live Compatibility Status
+                    </h2>
+                    <p class="text-xs text-neutral-400 mt-0.5">Актуальный статус систем защиты Easy Anti-Cheat, BattlEye, Vanguard</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <input type="text" id="acSearch" oninput="filterAntiCheat()" placeholder="Поиск игры или античита..." class="px-3 py-1.5 bg-mono-panel border border-mono-border rounded text-xs font-mono text-white outline-none focus:border-white w-48 sm:w-56">
+                    <select id="acFilter" onchange="filterAntiCheat()" class="bg-mono-panel border border-mono-border rounded px-2.5 py-1.5 text-xs font-mono text-white outline-none focus:border-white">
+                        <option value="all">Все статусы</option>
+                        <option value="supported">Работает (Supported)</option>
+                        <option value="blocked">Заблокировано (Ring 0)</option>
+                        <option value="partial">Частично (Custom)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Responsive Table Container -->
+            <div class="mono-card rounded-lg overflow-x-auto">
+                <table class="w-full text-left font-mono text-xs">
+                    <thead class="bg-mono-panel border-b border-mono-border text-neutral-400 uppercase text-[10px]">
+                        <tr>
+                            <th class="py-3 px-4">Игра</th>
+                            <th class="py-3 px-4">Система Античита</th>
+                            <th class="py-3 px-4">Статус на Linux</th>
+                            <th class="py-3 px-4">Решение / Механизм</th>
+                        </tr>
+                    </thead>
+                    <tbody id="antiCheatBody" class="divide-y divide-mono-border">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal for Detailed Game Info -->
+    <div id="gameModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden p-4">
+        <div class="mono-card rounded-lg max-w-xl w-full p-6 relative space-y-4">
+            <button onclick="closeModal()" class="absolute top-4 right-4 p-1 rounded text-neutral-400 hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- Minimalist Footer -->
+    <footer class="border-t border-mono-border bg-black py-12 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="space-y-1 text-center md:text-left">
+                <div class="font-mono text-sm font-bold text-white tracking-wider flex items-center justify-center md:justify-start space-x-2">
+                    <span>TUX // RIG</span>
+                    <span class="text-neutral-600">//</span>
+                    <span class="text-neutral-400">AIDZYKI ARCHIVE</span>
+                </div>
+                <p class="text-xs text-neutral-500 font-mono">
+                    High-performance Linux gaming portal. Pure open-source, zero bloatware.
+                </p>
+            </div>
+
+            <!-- Footer Social Links -->
+            <div class="flex items-center space-x-4 font-mono text-xs text-neutral-400">
+                <a href="https://t.me/aidzyki" target="_blank" rel="noopener noreferrer" class="hover:text-white transition">Telegram: @aidzyki</a>
+                <span>•</span>
+                <a href="https://github.com/aidzyki" target="_blank" rel="noopener noreferrer" class="hover:text-white transition">GitHub</a>
+                <span>•</span>
+                <a href="#aidzyki-profile" class="hover:text-white transition">Roblox: @zov_aidzyki</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Logic Script -->
+    <script>
+        /* --- Web Audio API Mechanical Sound Engine --- */
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioCtxClass) audioCtx = new AudioCtxClass();
+            }
+        }
+
+        function playClick(freq = 900, duration = 0.03) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                if (!audioCtx) return;
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {}
+        }
+
+        function playBeepSuccess() {
+            playClick(800, 0.04);
+            setTimeout(() => playClick(1200, 0.05), 50);
+        }
+
+        function toggleAudio() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('soundIcon');
+            const label = document.getElementById('soundLabel');
+            if (soundEnabled) {
+                icon.setAttribute('data-lucide', 'volume-2');
+                label.innerText = 'SFX: ON';
+                showToast('Звуковые клики включены', 'info');
+                playBeepSuccess();
+            } else {
+                icon.setAttribute('data-lucide', 'volume-x');
+                label.innerText = 'SFX: OFF';
+                showToast('Звуковые клики отключены', 'info');
+            }
+            lucide.createIcons();
+        }
+
+        /* --- Toast Notification System --- */
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'pointer-events-auto flex items-center space-x-2 px-3.5 py-2.5 rounded border border-mono-border bg-mono-surface text-xs font-mono text-white shadow-xl transition-all duration-200 transform translate-x-4 opacity-0';
+            toast.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-white"></span><span>${msg}</span>`;
+            container.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-x-4', 'opacity-0');
+            });
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-x-2');
+                setTimeout(() => toast.remove(), 250);
+            }, 2500);
+        }
+
+        function copySnippet(text) {
+            playBeepSuccess();
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showToast('Скопировано в буфер: ' + text);
+        }
+
+        /* --- Mobile Navigation Drawer Toggle --- */
+        function toggleMobileMenu() {
+            playClick();
+            const drawer = document.getElementById('mobileDrawer');
+            const icon = document.getElementById('menuIcon');
+            drawer.classList.toggle('hidden');
+            if (drawer.classList.contains('hidden')) {
+                icon.setAttribute('data-lucide', 'menu');
+            } else {
+                icon.setAttribute('data-lucide', 'x');
+            }
+            lucide.createIcons();
+        }
+
+        function closeMobileMenu() {
+            document.getElementById('mobileDrawer').classList.add('hidden');
+            document.getElementById('menuIcon').setAttribute('data-lucide', 'menu');
+            lucide.createIcons();
+        }
+
+        /* --- Steam Launch Options Builder Logic --- */
+        function toggleGamescope() {
+            const isEnabled = document.getElementById('opt_gamescope').checked;
+            const container = document.getElementById('gamescopeFields');
+            if (isEnabled) {
+                container.classList.remove('opacity-40', 'pointer-events-none');
+            } else {
+                container.classList.add('opacity-40', 'pointer-events-none');
+            }
+        }
+
+        function updateLaunchCommand() {
+            playClick();
+            const envVars = [];
+            const wrappers = [];
+
+            if (document.getElementById('opt_aco').checked) envVars.push('RADV_PERFTEST=aco');
+            if (document.getElementById('opt_nvapi').checked) envVars.push('PROTON_ENABLE_NVAPI=1');
+            if (document.getElementById('opt_dxr').checked) envVars.push('VKD3D_CONFIG=dxr11,dxr');
+            if (document.getElementById('opt_mailbox').checked) envVars.push('MESA_VK_WSI_PRESENT_MODE=mailbox');
+
+            if (document.getElementById('opt_gamescope').checked) {
+                const res = document.getElementById('opt_gs_res').value.split('x');
+                const fps = document.getElementById('opt_gs_fps').value;
+                const mode = document.getElementById('opt_gs_mode').value;
+                const fsr = document.getElementById('opt_gs_fsr').checked;
+                const hdr = document.getElementById('opt_gs_hdr').checked;
+
+                let gs = `gamescope -w ${res[0]} -h ${res[1]} ${mode}`;
+                if (fps !== '0') gs += ` -r ${fps}`;
+                if (fsr) gs += ` -U --fsr-sharpness 2`;
+                if (hdr) gs += ` --hdr-enabled`;
+                gs += ' --';
+                wrappers.push(gs);
+            }
+
+            if (document.getElementById('opt_gamemode').checked) wrappers.push('gamemoderun');
+            if (document.getElementById('opt_mangohud').checked) wrappers.push('mangohud');
+
+            let finalCmd = '';
+            if (envVars.length > 0) finalCmd += envVars.join(' ') + ' ';
+            if (wrappers.length > 0) finalCmd += wrappers.join(' ') + ' ';
+            finalCmd += '%command%';
+
+            document.getElementById('terminalOutput').innerText = finalCmd;
+            document.getElementById('terminalOutput').dataset.raw = finalCmd;
+        }
+
+        function copyLaunchCommand() {
+            const raw = document.getElementById('terminalOutput').dataset.raw || '%command%';
+            copySnippet(raw);
+            const btnText = document.getElementById('copyLaunchText');
+            btnText.innerText = 'СКОПИРОВАНО!';
+            setTimeout(() => {
+                btnText.innerText = 'Скопировать строку для Steam';
+            }, 1800);
+        }
+
+        function resetLaunchOptions() {
+            document.getElementById('opt_gamemode').checked = false;
+            document.getElementById('opt_mangohud').checked = false;
+            document.getElementById('opt_gamescope').checked = false;
+            document.getElementById('opt_aco').checked = false;
+            document.getElementById('opt_nvapi').checked = false;
+            document.getElementById('opt_dxr').checked = false;
+            document.getElementById('opt_mailbox').checked = false;
+            document.getElementById('opt_gs_fsr').checked = false;
+            document.getElementById('opt_gs_hdr').checked = false;
+            toggleGamescope();
+            updateLaunchCommand();
+            showToast('Настройки сброшены к чистым');
+        }
+
+        function applyPreset(preset) {
+            resetLaunchOptions();
+            if (preset === 'competitive') {
+                document.getElementById('opt_gamemode').checked = true;
+                document.getElementById('opt_mangohud').checked = true;
+                document.getElementById('opt_aco').checked = true;
+                document.getElementById('opt_mailbox').checked = true;
+                showToast('Применен пресет: Киберспорт (Мин. инпут-лаг + ACO)');
+            } else if (preset === 'quality_rt') {
+                document.getElementById('opt_gamemode').checked = true;
+                document.getElementById('opt_mangohud').checked = true;
+                document.getElementById('opt_gamescope').checked = true;
+                document.getElementById('opt_nvapi').checked = true;
+                document.getElementById('opt_dxr').checked = true;
+                document.getElementById('opt_gs_hdr').checked = true;
+                toggleGamescope();
+                showToast('Применен пресет: AAA Quality / Ray Tracing / HDR');
+            }
+            updateLaunchCommand();
+        }
+
+        /* --- Games Compatibility Database & Rendering --- */
+        const gamesDB = [
+            {
+                id: 'cs2',
+                title: 'Counter-Strike 2',
+                tier: 'Native',
+                engine: 'Source 2 / Vulkan Native',
+                ac: 'VAC (Встроенный)',
+                runner: 'Нативный бинарник Linux',
+                launch: 'gamemoderun %command% -nojoy +engine_low_latency_sleep_after_client_tick 1',
+                notes: 'Полностью нативный бинарник. В Wayland с включенным wp_tearing задержка мыши абсолютно нулевая.'
+            },
+            {
+                id: 'cyberpunk',
+                title: 'Cyberpunk 2077',
+                tier: 'Platinum',
+                engine: 'REDengine 4 (VKD3D / DX12)',
+                ac: 'Отсутствует',
+                runner: 'GE-Proton9-20 или Proton Experimental',
+                launch: 'VKD3D_CONFIG=dxr PROTON_ENABLE_NVAPI=1 gamemoderun mangohud %command%',
+                notes: 'Безупречная работа Path Tracing, FSR 3 Frame Generation и DLSS на видеокартах RTX.'
+            },
+            {
+                id: 'eldenring',
+                title: 'Elden Ring',
+                tier: 'Platinum',
+                engine: 'FromSoftware DX12 -> VKD3D',
+                ac: 'Easy Anti-Cheat (Proton Bridge)',
+                runner: 'Proton 9.0-3',
+                launch: 'gamemoderun mangohud %command%',
+                notes: 'VKD3D устраняет подергивания компиляции шейдеров, обеспечивая более плавный фреймтайм, чем на Windows.'
+            },
+            {
+                id: 'apex',
+                title: 'Apex Legends',
+                tier: 'Platinum',
+                engine: 'Source DX11/12 via VKD3D',
+                ac: 'Easy Anti-Cheat (Официально включен EA)',
+                runner: 'GE-Proton9-15',
+                launch: 'RADV_PERFTEST=aco gamemoderun %command%',
+                notes: 'Официальный флаг Easy Anti-Cheat активен. Стабильные 144-240 FPS в матчах.'
+            },
+            {
+                id: 'dota2',
+                title: 'Dota 2',
+                tier: 'Native',
+                engine: 'Source 2 (Vulkan Native)',
+                ac: 'VAC (Valve Anti-Cheat)',
+                runner: 'Нативный порт',
+                launch: 'gamemoderun %command% -vulkan -high',
+                notes: 'Идеальный нативный клиент с поддержкой многопоточного рендеринга через Vulkan.'
+            },
+            {
+                id: 'gtav',
+                title: 'Grand Theft Auto V / Online',
+                tier: 'Gold',
+                engine: 'RAGE Engine (DXVK / DX11)',
+                ac: 'BattlEye (Rockstar Update 2024+)',
+                runner: 'GE-Proton9 / Proton Experimental',
+                launch: 'gamemoderun %command%',
+                notes: 'Синглплеер и FiveM работают стабильно. Для официального GTA Online требуется поддержка BattlEye Proton runtime.'
+            }
+        ];
+
+        let selectedTier = 'all';
+
+        function renderGames() {
+            const query = document.getElementById('gameSearch').value.toLowerCase();
+            const grid = document.getElementById('gamesGrid');
+            grid.innerHTML = '';
+
+            const list = gamesDB.filter(g => {
+                const matchTier = selectedTier === 'all' || g.tier === selectedTier;
+                const matchQuery = g.title.toLowerCase().includes(query) || g.engine.toLowerCase().includes(query);
+                return matchTier && matchQuery;
+            });
+
+            if (list.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-8 text-center font-mono text-neutral-500 text-xs">Игры не найдены</div>`;
+                return;
+            }
+
+            list.forEach(game => {
+                const card = document.createElement('div');
+                card.className = 'mono-card rounded-lg p-5 flex flex-col justify-between space-y-4';
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded border border-mono-border text-white bg-mono-panel">${game.tier}</span>
+                            <span class="text-[10px] font-mono text-neutral-500">${game.ac}</span>
+                        </div>
+                        <h3 class="text-base font-mono font-bold text-white">${game.title}</h3>
+                        <p class="text-xs text-neutral-400 font-mono mt-1">${game.engine}</p>
+                    </div>
+
+                    <div class="space-y-2 pt-2 border-t border-mono-border text-xs font-mono">
+                        <div class="text-[11px] text-neutral-400">Раннер: <span class="text-white">${game.runner}</span></div>
+                        <div class="flex items-center gap-2 pt-1">
+                            <button onclick="openModal('${game.id}')" class="flex-1 mono-btn-secondary py-1.5 rounded text-center text-xs">Инфо & Твики</button>
+                            <button onclick="copySnippet('${game.launch}')" title="Скопировать флаги" class="px-2.5 py-1.5 rounded border border-mono-border bg-mono-panel hover:border-white text-white">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        function setTierFilter(tier) {
+            playClick();
+            selectedTier = tier;
+            document.querySelectorAll('.tier-btn').forEach(btn => {
+                if (btn.dataset.tier === tier) {
+                    btn.className = 'tier-btn px-2 py-1 rounded text-white bg-mono-elevated font-bold';
+                } else {
+                    btn.className = 'tier-btn px-2 py-1 rounded text-neutral-400 hover:text-white';
+                }
+            });
+            renderGames();
+        }
+
+        function filterGames() {
+            renderGames();
+        }
+
+        function openModal(id) {
+            playClick();
+            const g = gamesDB.find(x => x.id === id);
+            if (!g) return;
+            const container = document.getElementById('modalContent');
+            container.innerHTML = `
+                <div class="border-b border-mono-border pb-3">
+                    <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded border border-mono-border text-white bg-mono-panel">${g.tier} Tier</span>
+                    <h3 class="text-xl font-mono font-bold text-white mt-1">${g.title}</h3>
+                </div>
+                <div class="space-y-3 font-mono text-xs">
+                    <div>
+                        <span class="text-neutral-500 block text-[11px]">Раннер:</span>
+                        <span class="text-white font-bold">${g.runner}</span>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-neutral-500 text-[11px]">Оптимальные параметры запуска Steam:</span>
+                            <button onclick="copySnippet('${g.launch}')" class="text-white hover:underline text-[11px]">Копировать</button>
+                        </div>
+                        <code class="block p-2 rounded bg-black border border-mono-border text-neutral-300 break-all">${g.launch}</code>
+                    </div>
+                    <div class="p-3 rounded bg-mono-panel border border-mono-border font-sans text-xs text-neutral-300">
+                        <span class="font-mono text-white font-bold block mb-1">Заметки и тонкая настройка:</span>
+                        ${g.notes}
+                    </div>
+                </div>
+            `;
+            document.getElementById('gameModal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeModal() {
+            document.getElementById('gameModal').classList.add('hidden');
+        }
+
+        /* --- MangoHud Live Overlay Canvas Simulator --- */
+        let simFps = 143;
+        let ftHistory = Array(40).fill(7.0);
+
+        function initHudCanvas() {
+            const canvas = document.getElementById('hudCanvas');
+            const ctx = canvas.getContext('2d');
+
+            function resize() {
+                canvas.width = canvas.parentElement.clientWidth;
+                canvas.height = canvas.parentElement.clientHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            let angle = 0;
+
+            function render() {
+                ctx.fillStyle = '#050505';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Monochrome Wireframe Grid
+                const horizon = canvas.height * 0.55;
+                ctx.strokeStyle = '#262626';
+                ctx.lineWidth = 1;
+
+                const offset = (Date.now() / 20) % 25;
+                for (let y = horizon; y < canvas.height; y += 10 + (y - horizon) * 0.2) {
+                    const drawY = y + (offset * ((y - horizon) / (canvas.height - horizon)));
+                    if (drawY > canvas.height) continue;
+                    ctx.beginPath();
+                    ctx.moveTo(0, drawY);
+                    ctx.lineTo(canvas.width, drawY);
+                    ctx.stroke();
+                }
+
+                const lines = 16;
+                for (let i = 0; i <= lines; i++) {
+                    const xTop = canvas.width * 0.5 + (i - lines / 2) * 10;
+                    const xBottom = canvas.width * 0.5 + (i - lines / 2) * (canvas.width / 4);
+                    ctx.beginPath();
+                    ctx.moveTo(xTop, horizon);
+                    ctx.lineTo(xBottom, canvas.height);
+                    ctx.stroke();
+                }
+
+                // Rotating Wireframe Monolith
+                angle += 0.015;
+                ctx.save();
+                ctx.translate(canvas.width * 0.5, horizon - 40);
+                ctx.rotate(angle);
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(-25, -25, 50, 50);
+                ctx.restore();
+
+                // Fluctuate FPS
+                if (Math.random() < 0.12) {
+                    simFps = Math.floor(140 + Math.random() * 6);
+                    ftHistory.shift();
+                    ftHistory.push(1000 / simFps);
+                }
+
+                requestAnimationFrame(render);
+            }
+            render();
+        }
+
+        function renderHud() {
+            const showFps = document.getElementById('hud_fps').checked;
+            const showFt = document.getElementById('hud_frametime').checked;
+            const showGpu = document.getElementById('hud_gpu').checked;
+            const showCpu = document.getElementById('hud_cpu').checked;
+            const showDriver = document.getElementById('hud_driver').checked;
+            const pos = document.getElementById('hud_position').value;
+            const preset = document.getElementById('hud_preset').value;
+
+            const el = document.getElementById('mangoHudDisplay');
+            el.style.top = pos.includes('top') ? '14px' : 'auto';
+            el.style.bottom = pos.includes('bottom') ? '14px' : 'auto';
+            el.style.left = pos.includes('left') ? '14px' : 'auto';
+            el.style.right = pos.includes('right') ? '14px' : 'auto';
+
+            let html = '<div class="bg-black/90 p-2.5 rounded border border-mono-border text-white min-w-[200px] space-y-1">';
+
+            if (preset === 'minimal') {
+                html += `<div class="font-bold flex justify-between"><span>FPS</span><span>${simFps}</span></div></div>`;
+                el.innerHTML = html;
+                return;
+            }
+
+            if (showGpu) {
+                html += `
+                    <div class="flex justify-between text-neutral-300">
+                        <span class="text-white font-bold">GPU</span>
+                        <span>97% 58°C</span>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-neutral-500">
+                        <span>VRAM</span><span>6.8 / 16.0 GB</span>
+                    </div>
+                `;
+            }
+
+            if (showCpu) {
+                html += `
+                    <div class="flex justify-between text-neutral-300 pt-0.5">
+                        <span class="text-white font-bold">CPU</span>
+                        <span>32% 52°C</span>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-neutral-500">
+                        <span>RAM</span><span>12.4 / 32.0 GB</span>
+                    </div>
+                `;
+            }
+
+            if (showFps) {
+                html += `
+                    <div class="flex justify-between font-bold text-white pt-1 border-t border-mono-border">
+                        <span>FPS</span><span>${simFps}</span>
+                    </div>
+                `;
+            }
+
+            if (showFt) {
+                const ms = (1000 / simFps).toFixed(1);
+                html += `
+                    <div class="flex justify-between text-[10px] text-neutral-400">
+                        <span>FRAMETIME</span><span>${ms} ms</span>
+                    </div>
+                    <div class="h-4 w-full flex items-end gap-[1px] bg-neutral-900 p-0.5 rounded overflow-hidden">
+                        ${ftHistory.map(ft => {
+                            const h = Math.min(14, Math.max(3, (ft / 14) * 14));
+                            return `<div style="height:${h}px; width:4px; background:#ffffff;"></div>`;
+                        }).join('')}
+                    </div>
+                `;
+            }
+
+            if (showDriver && preset === 'full') {
+                html += `
+                    <div class="pt-1 border-t border-mono-border text-[9px] text-neutral-500 flex justify-between">
+                        <span>RADV Mesa 24.3</span><span>VK 1.3</span>
+                    </div>
+                `;
+            }
+
+            html += '</div>';
+            el.innerHTML = html;
+        }
+
+        function copyMangoConf() {
+            const conf = `
+# MangoHud Minimalist Configuration (~/.config/MangoHud/MangoHud.conf)
+fps
+frametime=1
+gpu_stats
+gpu_temp
+cpu_stats
+cpu_temp
+vram
+ram
+vulkan_driver
+position=top-left
+background_alpha=0.8
+table_columns=3
+font_size=18
+            `.trim();
+            copySnippet(conf);
+        }
+
+        /* --- Distro Tuning Station Code & Logic --- */
+        const distros = {
+            nixos: {
+                title: 'NixOS Declarative Steam & Gamescope Flake',
+                desc: 'Декларативное описание всей игровой экосистемы в /etc/nixos/configuration.nix',
+                code: `# NixOS: конфигурация Steam, Gamescope и GameMode
+programs.steam = {
+  enable = true;
+  remotePlay.openFirewall = true;
+  dedicatedServer.openFirewall = true;
+  gamescopeSession.enable = true;
+  extraCompatPackages = [ pkgs.proton-ge-bin ];
+};
+
+programs.gamemode.enable = true;
+
+# Низколатентный звук PipeWire (64 samples buffer)
+services.pipewire = {
+  enable = true;
+  alsa.enable = true;
+  alsa.support32Bit = true;
+  pulse.enable = true;
+};`
+            },
+            arch: {
+                title: 'Arch Linux / CachyOS (sched-ext / BORE kernel)',
+                desc: 'Пакетная установка драйверов Vulkan, 32-битных библиотек и ядра CachyOS',
+                code: `# 1. Установка Steam, драйверов Vulkan и оверлеев:
+sudo pacman -S --needed steam vulkan-radeon lib32-vulkan-radeon \\
+    gamemode lib32-gamemode mangohud lib32-mangohud gamescope
+
+# 2. Установка Proton-GE через AUR:
+yay -S proton-ge-custom-bin goverlay-bin`
+            },
+            fedora: {
+                title: 'Fedora Workstation / Nobara',
+                desc: 'Настройка RPM Fusion репозиториев и готовой сборки',
+                code: `# Подключение репозиториев RPM Fusion и установка Steam:
+sudo dnf install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \\
+    https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+
+sudo dnf install steam gamemode mangohud gamescope`
+            },
+            bazzite: {
+                title: 'Bazzite (Иммутабельный SteamOS для любого ПК)',
+                desc: 'Готовый образ Fedora Silverblue с консольным интерфейсом Steam Deck',
+                code: `# Управление пакетами и обновлениями в Bazzite через ujust:
+ujust setup-gaming
+ujust install-decky-loader
+ujust update-all`
+            }
+        };
+
+        function switchDistro(key) {
+            playClick();
+            document.querySelectorAll('.distro-tab').forEach(b => {
+                b.className = 'distro-tab whitespace-nowrap px-4 py-2 rounded font-mono text-xs border border-mono-border bg-mono-panel text-neutral-400 hover:text-white transition';
+            });
+            document.getElementById(`dtab_${key}`).className = 'distro-tab whitespace-nowrap px-4 py-2 rounded font-mono text-xs border border-white bg-mono-elevated text-white font-bold transition';
+
+            const d = distros[key];
+            const box = document.getElementById('distroContainer');
+            box.innerHTML = `
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-mono-border gap-2">
+                    <div>
+                        <h3 class="text-sm font-mono font-bold text-white">${d.title}</h3>
+                        <p class="text-xs text-neutral-400 font-sans">${d.desc}</p>
+                    </div>
+                    <button onclick="copySnippet(distros['${key}'].code)" class="mono-btn-secondary px-3 py-1.5 rounded font-mono text-xs whitespace-nowrap flex items-center space-x-1.5">
+                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                        <span>Копировать</span>
+                    </button>
+                </div>
+                <pre class="p-3 rounded bg-black border border-mono-border text-neutral-300 font-mono text-xs overflow-x-auto mt-3 leading-relaxed"><code>${d.code}</code></pre>
+            `;
+            lucide.createIcons();
+        }
+
+        /* --- Anti-Cheat Table Data & Filter --- */
+        const acData = [
+            { game: 'Apex Legends', ac: 'Easy Anti-Cheat', status: 'supported', label: 'Работает нативно', note: 'EA активировала флаг eac_server64.so' },
+            { game: 'Valorant', ac: 'Riot Vanguard', status: 'blocked', label: 'Блокировка (Ring 0)', note: 'Требует Windows kernel-driver и SecureBoot' },
+            { game: 'The Finals', ac: 'Easy Anti-Cheat', status: 'supported', label: 'Работает отлично', note: 'Поддержка Proton с релиза' },
+            { game: 'Destiny 2', ac: 'BattlEye', status: 'blocked', label: 'Блокировка разработчиком', note: 'Bungie банит Linux-клиенты' },
+            { game: 'Rust', ac: 'Easy Anti-Cheat', status: 'partial', label: 'Серверы с EAC Linux', note: 'Работает на серверах без Windows-only флага' },
+            { game: 'Overwatch 2', ac: 'Blizzard Warden', status: 'supported', label: 'Работает без нареканий', note: 'Steam & Battle.net версии через Proton' }
+        ];
+
+        function renderAntiCheat() {
+            const query = document.getElementById('acSearch').value.toLowerCase();
+            const filter = document.getElementById('acFilter').value;
+            const tbody = document.getElementById('antiCheatBody');
+            tbody.innerHTML = '';
+
+            const list = acData.filter(i => {
+                const matchStatus = filter === 'all' || i.status === filter;
+                const matchQuery = i.game.toLowerCase().includes(query) || i.ac.toLowerCase().includes(query);
+                return matchStatus && matchQuery;
+            });
+
+            list.forEach(i => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-mono-panel transition';
+                
+                let badgeClass = 'text-neutral-400 border-mono-border';
+                if (i.status === 'supported') badgeClass = 'text-white border-white bg-mono-elevated';
+                else if (i.status === 'blocked') badgeClass = 'text-neutral-500 border-mono-border';
+
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-bold text-white">${i.game}</td>
+                    <td class="py-3 px-4 text-neutral-400 text-xs">${i.ac}</td>
+                    <td class="py-3 px-4">
+                        <span class="inline-block px-2 py-0.5 rounded border ${badgeClass} text-[11px] uppercase">${i.label}</span>
+                    </td>
+                    <td class="py-3 px-4 text-neutral-400 text-xs">${i.note}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        function filterAntiCheat() {
+            renderAntiCheat();
+        }
+
+        /* --- Initialization --- */
+        window.addEventListener('DOMContentLoaded', () => {
+            initHudCanvas();
+            updateLaunchCommand();
+            renderGames();
+            renderHud();
+            switchDistro('nixos');
+            renderAntiCheat();
+            lucide.createIcons();
+
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeModal();
+            });
+        });
+    </script>
+</body>
+</html>
